@@ -28,13 +28,13 @@ public class EmployeeController {
 		return repository.findAll();
 	}
 
-	@PostMapping("/employees")
+	@PostMapping("/employees/register")
 	Employee newEmployee(@RequestBody Employee employee) {
 		return repository.save(employee);
 	}
 
 	@GetMapping("/employees/{id}")
-	Employee one(@RequestBody Long id) {
+	Employee one(@PathVariable Long id) {
 		return repository.findById(id)
 				.orElseThrow(() -> new EmployeeNotFoundException(id));
 	}
