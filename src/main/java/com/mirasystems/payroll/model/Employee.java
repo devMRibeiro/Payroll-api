@@ -4,15 +4,21 @@ import java.util.Objects;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 
 @Entity
 public class Employee {
 
 	@Id
-	@GeneratedValue
-	private Long id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "employee_id_sequence")
+  @SequenceGenerator(name = "employee_id_sequence", sequenceName = "employee_id_sequence", allocationSize = 1)
+  private Integer id;
+	
+
 	private String name;
+	
 	private String role;
 
 	public Employee() { }
@@ -22,11 +28,11 @@ public class Employee {
 		this.role = role;
 	}
 
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
