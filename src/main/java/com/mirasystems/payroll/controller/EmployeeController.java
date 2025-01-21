@@ -1,7 +1,12 @@
 package com.mirasystems.payroll.controller;
 
-import java.util.List;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mirasystems.payroll.assembler.EmployeeModelAssembler;
 import com.mirasystems.payroll.exception.EmployeeNotFoundException;
 import com.mirasystems.payroll.model.Employee;
 import com.mirasystems.payroll.repository.EmployeeRepository;
@@ -19,29 +25,39 @@ public class EmployeeController {
 	
 	private final EmployeeRepository repository;
 	
-	EmployeeController(EmployeeRepository repository) {
+	private final EmployeeModelAssembler assembler;
+	
+	public EmployeeController(EmployeeRepository repository, EmployeeModelAssembler assembler) {
 		this.repository = repository;
+		this.assembler = assembler;
 	}
 
 	@GetMapping("/employees")
-	List<Employee> all() {
-		return repository.findAll();
+	public CollectionModel<EntityModel<Employee>> all() {
+
+	  List<EntityModel<Employee>> employees = repository.findAll().stream()
+	      .map(assembler::toModel)
+	      .collect(Collectors.toList());
+
+	  return CollectionModel.of(employees, linkTo(methodOn(EmployeeController.class).all()).withSelfRel());
 	}
 
 	@PostMapping("/employees/register")
-	Employee newEmployee(@RequestBody Employee employee) {
+	public Employee newEmployee(@RequestBody Employee employee) {
 		return repository.save(employee);
 	}
 
 	@GetMapping("/employees/{id}")
-	Employee one(@PathVariable Long id) {
-		return repository.findById(id)
+	public EntityModel<Employee> one(@PathVariable Integer id) {
+		Employee employee = repository.findById(id)
 				.orElseThrow(() -> new EmployeeNotFoundException(id));
+		
+		return assembler.toModel(employee);
 	}
 
 	@PutMapping("/employees/{id}")
-	Employee replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
-		
+	public Employee replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Integer id) {
+
 		return repository.findById(id).map(employee -> {
 					employee.setName(newEmployee.getName());
 					employee.setRole(newEmployee.getRole());
@@ -53,7 +69,7 @@ public class EmployeeController {
 	}
 
 	@DeleteMapping("/employees/{id}")
-	void deleteEmployee(@PathVariable Long id) {
+	public void deleteEmployee(@PathVariable Integer id) {
 		repository.deleteById(id);
 	}
 }
