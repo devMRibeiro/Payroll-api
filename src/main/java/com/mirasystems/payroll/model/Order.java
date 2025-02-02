@@ -2,6 +2,8 @@ package com.mirasystems.payroll.model;
 
 import java.util.Objects;
 
+import com.mirasystems.payroll.enums.EnumStatus;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,13 +20,21 @@ public class Order {
   @SequenceGenerator(name = "order_id_sequence", sequenceName = "order_id_sequence", allocationSize = 1)
 	private Integer id;
 	private String description;
-	private String status;
+	private EnumStatus status;
 	
 	public Order() { }
 	
-	public Order(String description, String status) {
+	public Order(String description, EnumStatus status) {
 		this.description = description;
 		this.status = status;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 	public String getDescription() {
@@ -35,11 +45,11 @@ public class Order {
 		this.description = description;
 	}
 
-	public String getStatus() {
+	public EnumStatus getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(EnumStatus status) {
 		this.status = status;
 	}
 
