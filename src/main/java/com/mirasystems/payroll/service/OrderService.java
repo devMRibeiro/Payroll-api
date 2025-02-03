@@ -1,5 +1,16 @@
 package com.mirasystems.payroll.service;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+
+import com.mirasystems.payroll.assembler.OrderModelAssembler;
+import com.mirasystems.payroll.controller.OrderController;
 import com.mirasystems.payroll.enums.EnumStatus;
 import com.mirasystems.payroll.exception.InvalidOrderOperationException;
 import com.mirasystems.payroll.exception.OrderNotFoundException;
@@ -8,16 +19,26 @@ import com.mirasystems.payroll.repository.OrderRepository;
 
 public class OrderService {
 
-	private OrderRepository repository;
+	private final OrderRepository repository;
+	private final OrderModelAssembler assembler;
 
-	public OrderService(OrderRepository repository) {
+	public OrderService(OrderRepository repository, OrderModelAssembler assembler) {
 		this.repository = repository;
+		this.assembler = assembler;
 	}
 
 	public Order findOrderById(Integer id) {
 		return repository.findById(id).orElseThrow(() -> new OrderNotFoundException(id));
 	}
 
+	public CollectionModel<EntityModel<Order>> getAll() {
+		List<EntityModel<Order>> orders = repository.findAll().stream()
+        .map(assembler::toModel)
+        .collect(Collectors.toList());
+
+		return CollectionModel.of(orders, linkTo(methodOn(OrderController.class).all()).withSelfRel());
+	}
+	
 	public Order newOrder(Order order) {
 		order.setStatus(EnumStatus.IN_PROGRESS);
 		return repository.save(order);
