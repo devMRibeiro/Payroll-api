@@ -8,10 +8,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.MediaTypes;
-import org.springframework.hateoas.mediatype.problem.Problem;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,9 +48,7 @@ public class OrderController {
 
 	@GetMapping("/orders/{id}")
 	public EntityModel<Order> one(@PathVariable Integer id) {
-		Order order = service.findOrderById(id);
-
-		return assembler.toModel(order);
+		return assembler.toModel(service.findOrderById(id));
 	}
 
 	@PostMapping("/orders/register")
@@ -70,37 +64,12 @@ public class OrderController {
 
 	@DeleteMapping("/orders/{id}/cancel")
 	public ResponseEntity<?> cancel(@PathVariable Integer id) {
-
-		Order order = service.findOrderById(id);
-
-		if (order.getStatus() == EnumStatus.IN_PROGRESS) {
-			order.setStatus(EnumStatus.CANCELLED);
-			return ResponseEntity.ok(assembler.toModel(repository.save(order)));
-		}
-		
-		return ResponseEntity
-				.status(HttpStatus.METHOD_NOT_ALLOWED)
-				.header(HttpHeaders.CONTENT_TYPE, MediaTypes.HTTP_PROBLEM_DETAILS_JSON_VALUE)
-				.body(Problem.create()
-						.withTitle("Method not allowed")
-						.withDetail("You can't cancel an order that is in the " + order.getStatus() + " status"));
+		return ResponseEntity.ok(assembler.toModel(service.cancel(id)));
 	}
+		
 
 	@PutMapping("/orders/{id}/complete")
 	public ResponseEntity<?> complete(@PathVariable Integer id) {
-		
-		Order order = service.findOrderById(id);
-		
-		if (order.getStatus() == EnumStatus.IN_PROGRESS) {
-			order.setStatus(EnumStatus.COMPLETED);
-			return ResponseEntity.ok(assembler.toModel(repository.save(order)));
-		}
-		
-		return ResponseEntity
-				.status(HttpStatus.METHOD_NOT_ALLOWED)
-				.header(HttpHeaders.CONTENT_TYPE, MediaTypes.HTTP_PROBLEM_DETAILS_JSON_VALUE)
-				.body(Problem.create()
-						.withTitle("Method not allowed")
-						.withDetail("You can't cancel an order that is in the " + order.getStatus() + " status"));
+		return ResponseEntity.ok(assembler.toModel(service.complete(id)));
 	}
 }
