@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mirasystems.payroll.assembler.OrderModelAssembler;
-import com.mirasystems.payroll.enums.EnumStatus;
 import com.mirasystems.payroll.model.Order;
 import com.mirasystems.payroll.repository.OrderRepository;
 import com.mirasystems.payroll.service.OrderService;
@@ -54,8 +53,7 @@ public class OrderController {
 	@PostMapping("/orders/register")
 	public ResponseEntity<EntityModel<Order>> newOrder(@RequestBody Order order) {
 
-		order.setStatus(EnumStatus.IN_PROGRESS);
-		Order newOrder = repository.save(order);
+		Order newOrder = service.newOrder(order);
 
 		return ResponseEntity
 				.created(linkTo(methodOn(OrderController.class).one(newOrder.getId())).toUri())
@@ -66,7 +64,6 @@ public class OrderController {
 	public ResponseEntity<?> cancel(@PathVariable Integer id) {
 		return ResponseEntity.ok(assembler.toModel(service.cancel(id)));
 	}
-		
 
 	@PutMapping("/orders/{id}/complete")
 	public ResponseEntity<?> complete(@PathVariable Integer id) {

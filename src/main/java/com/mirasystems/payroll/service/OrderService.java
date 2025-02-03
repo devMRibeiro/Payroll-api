@@ -17,6 +17,11 @@ public class OrderService {
 	public Order findOrderById(Integer id) {
 		return repository.findById(id).orElseThrow(() -> new OrderNotFoundException(id));
 	}
+
+	public Order newOrder(Order order) {
+		order.setStatus(EnumStatus.IN_PROGRESS);
+		return repository.save(order);
+	}
 	
 	public Order cancel(Integer id) {
 
