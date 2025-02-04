@@ -1,11 +1,5 @@
 package com.mirasystems.payroll.controller;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -22,27 +16,24 @@ import com.mirasystems.payroll.assembler.EmployeeModelAssembler;
 import com.mirasystems.payroll.exception.EmployeeNotFoundException;
 import com.mirasystems.payroll.model.Employee;
 import com.mirasystems.payroll.repository.EmployeeRepository;
+import com.mirasystems.payroll.service.EmployeeService;
 
 @RestController
 public class EmployeeController {
 	
 	private final EmployeeRepository repository;
-	
 	private final EmployeeModelAssembler assembler;
+	private final EmployeeService service;
 	
-	public EmployeeController(EmployeeRepository repository, EmployeeModelAssembler assembler) {
+	public EmployeeController(EmployeeRepository repository, EmployeeModelAssembler assembler, EmployeeService service) {
 		this.repository = repository;
 		this.assembler = assembler;
+		this.service = service;
 	}
 
 	@GetMapping("/employees")
 	public CollectionModel<EntityModel<Employee>> all() {
-
-	  List<EntityModel<Employee>> employees = repository.findAll().stream()
-	      .map(assembler::toModel)
-	      .collect(Collectors.toList());
-
-	  return CollectionModel.of(employees, linkTo(methodOn(EmployeeController.class).all()).withSelfRel());
+	  return service.getAll();
 	}
 
 	@PostMapping("/employees/register")
