@@ -39,7 +39,7 @@ public class OrderService {
 		return CollectionModel.of(orders, linkTo(methodOn(OrderController.class).all()).withSelfRel());
 	}
 	
-	public EntityModel<Order> newOrder(Order order) {
+	public EntityModel<Order> save(Order order) {
 		order.setStatus(EnumStatus.IN_PROGRESS);
 		return assembler.toModel(repository.save(order));
 	}

@@ -39,7 +39,7 @@ public class EmployeeService {
 				.orElseThrow(() -> new EmployeeNotFoundException(id)));
 	}
 
-	public EntityModel<Employee> newEmployee(Employee employee) {
+	public EntityModel<Employee> save(Employee employee) {
 		return assembler.toModel(repository.save(employee));
 	}
 
@@ -56,7 +56,7 @@ public class EmployeeService {
 
 					return repository.save(employee);
 
-				}).orElseThrow(() ->  new EmployeeNotFoundException(id));
+				}).orElseThrow(() -> new EmployeeNotFoundException(id));
 
 		return assembler.toModel(updateEmployee);
 	}

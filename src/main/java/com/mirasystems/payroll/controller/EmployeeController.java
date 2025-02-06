@@ -32,7 +32,7 @@ public class EmployeeController {
 	@PostMapping("/employees/register")
 	public ResponseEntity<?> newEmployee(@RequestBody Employee employee) {
 
-		EntityModel<Employee> entityModel = service.newEmployee(employee);
+		EntityModel<Employee> entityModel = service.save(employee);
 
 		return ResponseEntity
 				.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())

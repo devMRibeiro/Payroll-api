@@ -39,7 +39,7 @@ public class OrderController {
 	@PostMapping("/orders/register")
 	public ResponseEntity<EntityModel<Order>> newOrder(@RequestBody Order order) {
 
-		EntityModel<Order> newOrder = service.newOrder(order);
+		EntityModel<Order> newOrder = service.save(order);
 
 		return ResponseEntity
 				.created(linkTo(methodOn(OrderController.class).one(newOrder.getContent().getId())).toUri())
