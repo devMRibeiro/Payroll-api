@@ -27,8 +27,8 @@ public class OrderService {
 		this.assembler = assembler;
 	}
 
-	public Order findOrderById(Integer id) {
-		return repository.findById(id).orElseThrow(() -> new OrderNotFoundException(id));
+	public EntityModel<Order> findById(Integer id) {
+		return assembler.toModel(repository.findById(id).orElseThrow(() -> new OrderNotFoundException(id)));
 	}
 
 	public CollectionModel<EntityModel<Order>> getAll() {
@@ -39,29 +39,31 @@ public class OrderService {
 		return CollectionModel.of(orders, linkTo(methodOn(OrderController.class).all()).withSelfRel());
 	}
 	
-	public Order newOrder(Order order) {
+	public EntityModel<Order> newOrder(Order order) {
 		order.setStatus(EnumStatus.IN_PROGRESS);
-		return repository.save(order);
+		return assembler.toModel(repository.save(order));
 	}
 	
-	public Order cancel(Integer id) {
+	public EntityModel<Order> cancel(Integer id) {
 
-		Order order = findOrderById(id);
+		Order order = repository.findById(id)
+				.orElseThrow(() -> new OrderNotFoundException(id));
 
 		if (order.getStatus() != EnumStatus.IN_PROGRESS)
 			throw new InvalidOrderOperationException(order.getStatus());
 	
 		order.setStatus(EnumStatus.CANCELLED);
-    return repository.save(order);
+    return assembler.toModel(repository.save(order));
 	}
 	
-	public Order complete(Integer id) {
-		Order order = findOrderById(id);
+	public EntityModel<Order> complete(Integer id) {
+		Order order = repository.findById(id)
+				.orElseThrow(() -> new OrderNotFoundException(id));
 
 		if (order.getStatus() != EnumStatus.IN_PROGRESS)
 			throw new InvalidOrderOperationException(order.getStatus());
 	
 		order.setStatus(EnumStatus.COMPLETED);
-    return repository.save(order);
+    return assembler.toModel(repository.save(order));
 	}
 }

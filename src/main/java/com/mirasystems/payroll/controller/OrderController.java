@@ -14,18 +14,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mirasystems.payroll.assembler.OrderModelAssembler;
 import com.mirasystems.payroll.model.Order;
 import com.mirasystems.payroll.service.OrderService;
 
 @RestController
 public class OrderController {
 
-	private final OrderModelAssembler assembler;
 	private final OrderService service;
 
-	public OrderController(OrderModelAssembler assembler, OrderService service) {
-		this.assembler = assembler;
+	public OrderController(OrderService service) {
 		this.service = service;
 	}
 
@@ -36,26 +33,26 @@ public class OrderController {
 
 	@GetMapping("/orders/{id}")
 	public EntityModel<Order> one(@PathVariable Integer id) {
-		return assembler.toModel(service.findOrderById(id));
+		return service.findById(id);
 	}
 
 	@PostMapping("/orders/register")
 	public ResponseEntity<EntityModel<Order>> newOrder(@RequestBody Order order) {
 
-		Order newOrder = service.newOrder(order);
+		EntityModel<Order> newOrder = service.newOrder(order);
 
 		return ResponseEntity
-				.created(linkTo(methodOn(OrderController.class).one(newOrder.getId())).toUri())
-				.body(assembler.toModel(newOrder));
+				.created(linkTo(methodOn(OrderController.class).one(newOrder.getContent().getId())).toUri())
+				.body(newOrder);
 	}
 
 	@DeleteMapping("/orders/{id}/cancel")
 	public ResponseEntity<?> cancel(@PathVariable Integer id) {
-		return ResponseEntity.ok(assembler.toModel(service.cancel(id)));
+		return ResponseEntity.ok(service.cancel(id));
 	}
 
 	@PutMapping("/orders/{id}/complete")
 	public ResponseEntity<?> complete(@PathVariable Integer id) {
-		return ResponseEntity.ok(assembler.toModel(service.complete(id)));
+		return ResponseEntity.ok(service.complete(id));
 	}
 }
