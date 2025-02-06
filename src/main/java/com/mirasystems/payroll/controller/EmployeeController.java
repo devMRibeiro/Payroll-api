@@ -12,22 +12,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mirasystems.payroll.assembler.EmployeeModelAssembler;
-import com.mirasystems.payroll.exception.EmployeeNotFoundException;
 import com.mirasystems.payroll.model.Employee;
-import com.mirasystems.payroll.repository.EmployeeRepository;
 import com.mirasystems.payroll.service.EmployeeService;
 
 @RestController
 public class EmployeeController {
 	
-	private final EmployeeRepository repository;
-	private final EmployeeModelAssembler assembler;
 	private final EmployeeService service;
 	
-	public EmployeeController(EmployeeRepository repository, EmployeeModelAssembler assembler, EmployeeService service) {
-		this.repository = repository;
-		this.assembler = assembler;
+	public EmployeeController(EmployeeService service) {
 		this.service = service;
 	}
 
@@ -38,9 +31,9 @@ public class EmployeeController {
 
 	@PostMapping("/employees/register")
 	public ResponseEntity<?> newEmployee(@RequestBody Employee employee) {
-		
-		EntityModel<Employee> entityModel = assembler.toModel(repository.save(employee));
-		
+
+		EntityModel<Employee> entityModel = service.newEmployee(employee);
+
 		return ResponseEntity
 				.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
 				.body(entityModel);
@@ -48,26 +41,14 @@ public class EmployeeController {
 
 	@GetMapping("/employees/{id}")
 	public EntityModel<Employee> one(@PathVariable Integer id) {
-		Employee employee = repository.findById(id)
-				.orElseThrow(() -> new EmployeeNotFoundException(id));
-		
-		return assembler.toModel(employee);
+		return service.getOne(id);
 	}
 
 	@PutMapping("/employees/{id}")
 	public ResponseEntity<?> replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Integer id) {
 
-		Employee updateEmployee = repository.findById(id)
-				.map(employee -> {
-					employee.setName(newEmployee.getName());
-					employee.setRole(newEmployee.getRole());
-					return repository.save(employee);
-				}).orElseGet(() -> {
-					return repository.save(newEmployee);
-		});
-		
-		EntityModel<Employee> entityModel = assembler.toModel(updateEmployee);
-		
+		EntityModel<Employee> entityModel = service.replace(newEmployee, id);
+
 		return ResponseEntity
 				.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
 				.body(entityModel);
@@ -75,8 +56,7 @@ public class EmployeeController {
 
 	@DeleteMapping("/employees/{id}")
 	public ResponseEntity<?> deleteEmployee(@PathVariable Integer id) {
-		repository.deleteById(id);
-		
+		service.deleteById(id);
 		return ResponseEntity.noContent().build();
 	}
 }
