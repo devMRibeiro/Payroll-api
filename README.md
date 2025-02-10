@@ -62,7 +62,7 @@ O console do H2 pode ser acessado em: `http://localhost:8080/h2-console` (JDBC U
 Fiquem à vontade para abrir **issues** ou enviar **pull requests**. Críticas construtivas são bem-vindas!
 
 ## Autor
-Desenvolvido por Michael Ribeiro [https://github.com/devMRibeiro].
+Desenvolvido por Michael Ribeiro https://github.com/devMRibeiro
 
 ## Licença
 Este projeto está licenciado sob a [MIT License](LICENSE).
