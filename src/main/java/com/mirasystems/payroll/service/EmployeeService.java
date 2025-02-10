@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.stereotype.Service;
 
 import com.mirasystems.payroll.assembler.EmployeeModelAssembler;
 import com.mirasystems.payroll.controller.EmployeeController;
@@ -15,6 +16,7 @@ import com.mirasystems.payroll.exception.EmployeeNotFoundException;
 import com.mirasystems.payroll.model.Employee;
 import com.mirasystems.payroll.repository.EmployeeRepository;
 
+@Service
 public class EmployeeService {
 
 	private final EmployeeRepository repository;
